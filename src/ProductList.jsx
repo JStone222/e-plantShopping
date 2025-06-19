@@ -6,6 +6,10 @@ function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart, setAddedToCart] = useState({});
+    const dispatch = dispatch(addItem(product));
+    const calculateTotalQuantity = () => {
+        return CartItem ? CartItem.reduce((total, item) => total + item.quantity, 0) : 0;
+         };
     const plantsArray = [
         {
             category: "Air Purifying Plants",
