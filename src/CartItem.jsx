@@ -1,14 +1,33 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from './CartSlice';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { addItem, removeItem, updateQuantity } from './CartSlice';
 import './CartItem.css';
 
-const CartItem = ({ onContinueShopping }) => {
-    const cart = useSelector(state => state.cart.items);
+const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+export function calculateTotalAmount(cart) {
+    let total = 0;
+    cart.forEach(item => {
+      const price = parseFloat(item.cost.substring(1));
+      total += price * item.quantity;
+    });
+    return total.toFixed(2);
+}
+
+const CartItem = ({ name, image, cost, quantity, onContinueShopping }) => {
+    const cart = useSelector(state => state.cart.items, shallowEqual);
     const dispatch = useDispatch();
   
-    const calculateTotalAmount = () =>
-      cart.reduce((sum, item) => sum + parseFloat(item.cost.substring(1)) * item.quantity, 0).toFixed(2);
+    // Track "added" status to disable button
+    const [added, setAdded] = useState(false);
+
+    // Handlers
+    const handleAdd = () => {
+    dispatch(addItem({ cart, name, image, cost}));
+    setAdded(true);
+    };
+    const totalQty = cart.reduce((sum, i) => sum + i.quantity, 0);
+    const totalAmount = calculateTotalAmount(cart);
   
     const handleContinueShopping = (e) => {
       if (onContinueShopping) onContinueShopping(e);
@@ -19,12 +38,12 @@ const CartItem = ({ onContinueShopping }) => {
     };
   
     const handleIncrement = (item) => {
-      dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+      dispatch(updateQuantity({ name, quantity: item.quantity + 1 }));
     };
   
     const handleDecrement = (item) => {
       if (item.quantity > 1) {
-        dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+        dispatch(updateQuantity({ name, quantity: item.quantity - 1 }));
       } else {
         dispatch(removeItem(item.name));
       }
@@ -34,26 +53,30 @@ const CartItem = ({ onContinueShopping }) => {
       dispatch(removeItem(item.name));
     };
   
-    const calculateTotalCost = (item) =>
+    const subtotal = (item) =>
       (parseFloat(item.cost.substring(1)) * item.quantity).toFixed(2);
   
     return (
       <div className="cart-container">
-        <h2>Total Cart Amount: ${calculateTotalAmount()}</h2>
+        <h2>
+            Cart ({totalQty} item{totalQty !== 1 && 's'}):{' '}
+            {currencyFormatter.format(totalAmount)}
+        </h2>
         <div>
           {cart.map(item => (
             <div className="cart-item" key={item.name}>
               <img className="cart-item-image" src={item.image} alt={item.name} />
               <div className="cart-item-details">
                 <div className="cart-item-name">{item.name}</div>
-                <div className="cart-item-cost">{item.cost}</div>
+                <div className="cart-item-cost">{currencyFormatter.format(item.cost)}</div>
                 <div className="cart-item-quantity">
                   <button className="cart-item-button cart-item-button-dec" onClick={() => handleDecrement(item)}>-</button>
                   <span className="cart-item-quantity-value">{item.quantity}</span>
                   <button className="cart-item-button cart-item-button-inc" onClick={() => handleIncrement(item)}>+</button>
                 </div>
-                <div className="cart-item-total">Total: ${calculateTotalCost(item)}</div>
+                <div className="cart-item-total">Total: ${subtotal(item)}</div>
                 <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
+    
                 </div>
             </div>
           ))}
@@ -65,28 +88,9 @@ const CartItem = ({ onContinueShopping }) => {
         </div>
       </div>
     );
-  }; 
+};
 
-  export function calculateTotalAmount(cartItems) {
-    let total = 0;
-    cartItems.forEach(item => {
-      // Convert cost string like "$10.00" or numeric cost to a float
-      const price = typeof item.cost === 'string'
-        ? parseFloat(item.cost.substring(1))
-        : parseFloat(item.cost);
-      total += price * item.quantity;
-    });
-    return total;
-  }
-  export function calculateTotalAmount(cartItems) {
-    let total = 0;
-    cartItems.forEach(item => {
-      // Convert cost string like "$10.00" or numeric cost to a float
-      const price = typeof item.cost === 'string'
-        ? parseFloat(item.cost.substring(1))
-        : parseFloat(item.cost);
-      total += price * item.quantity;
-    });
-    return total;
-  }  
+
+
+
 export default CartItem;
