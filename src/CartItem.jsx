@@ -67,4 +67,26 @@ const CartItem = ({ onContinueShopping }) => {
     );
   }; 
 
+  export function calculateTotalAmount(cartItems) {
+    let total = 0;
+    cartItems.forEach(item => {
+      // Convert cost string like "$10.00" or numeric cost to a float
+      const price = typeof item.cost === 'string'
+        ? parseFloat(item.cost.substring(1))
+        : parseFloat(item.cost);
+      total += price * item.quantity;
+    });
+    return total;
+  }
+  export function calculateTotalAmount(cartItems) {
+    let total = 0;
+    cartItems.forEach(item => {
+      // Convert cost string like "$10.00" or numeric cost to a float
+      const price = typeof item.cost === 'string'
+        ? parseFloat(item.cost.substring(1))
+        : parseFloat(item.cost);
+      total += price * item.quantity;
+    });
+    return total;
+  }  
 export default CartItem;
