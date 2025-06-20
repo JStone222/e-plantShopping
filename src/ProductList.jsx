@@ -10,6 +10,11 @@ function ProductList({ onHomeClick }) {
     const [addedToCart, setAddedToCart] = useState({});
     const dispatch = useDispatch();
     const cartItems = useSelector((state) => state.cart.items);
+    const currencyFormatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      });
+      
     // …
     const calculateTotalQuantity = () =>
         cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -307,7 +312,7 @@ function ProductList({ onHomeClick }) {
                                         <div className="product-title">{plant.name}</div> {/* Display plant name */}
                                         {/* Display other plant details like description and cost */}
                                         <div className="product-description">{plant.description}</div> {/* Display plant description */}
-                                        <div className="product-cost">${plant.cost}</div> {/* Display plant cost */}
+                                        <div className="product-cost">{currencyFormatter.format(plant.cost)}</div>
                                         <button
                                             className="product-button"
                                             onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
