@@ -6,12 +6,8 @@ import './CartItem.css';
 const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 export function calculateTotalAmount(cart) {
-    let total = 0;
-    cart.forEach(item => {
-      const price = parseFloat(item.cost.substring(1));
-      total += price * item.quantity;
-    });
-    return total.toFixed(2);
+  const total = cart.reduce((sum, i) => sum + i.cost * i.quantity, 0);
+  return total.toFixed(2);
 }
 
 const CartItem = ({ name, image, cost, quantity, onContinueShopping }) => {
@@ -53,8 +49,7 @@ const CartItem = ({ name, image, cost, quantity, onContinueShopping }) => {
       dispatch(removeItem(item.name));
     };
   
-    const subtotal = (item) =>
-      (parseFloat(item.cost.substring(1)) * item.quantity).toFixed(2);
+    const getItemTotal = (item) => (item.cost * item.quantity).toFixed(2);
   
     return (
       <div className="cart-container">
@@ -74,7 +69,7 @@ const CartItem = ({ name, image, cost, quantity, onContinueShopping }) => {
                   <span className="cart-item-quantity-value">{item.quantity}</span>
                   <button className="cart-item-button cart-item-button-inc" onClick={() => handleIncrement(item)}>+</button>
                 </div>
-                <div className="cart-item-total">Total: ${subtotal(item)}</div>
+                <div className="cart-item-total">Total: ${getItemTotal(item)}</div>
                 <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
     
                 </div>
